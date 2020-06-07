@@ -11,5 +11,5 @@ RUN source /root/.bashrc
 EXPOSE 80
 
 CMD /usr/sbin/httpd -DFOREGROUND
-CMD
+
 
