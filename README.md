@@ -1,19 +1,5 @@
 
-![p8](https://user-images.githubusercontent.com/48556545/85924346-63b7d100-b8af-11ea-9b5c-ce57da9b147c.jpg)
-![p9](https://user-images.githubusercontent.com/48556545/85924349-661a2b00-b8af-11ea-88d3-b73eac0607ca.jpg)
-![p10](https://user-images.githubusercontent.com/48556545/85924350-674b5800-b8af-11ea-95b8-55d7ab072d55.jpg)
-![p11](https://user-images.githubusercontent.com/48556545/85924351-67e3ee80-b8af-11ea-94bb-844cd933ed94.jpg)
-![p12](https://user-images.githubusercontent.com/48556545/85924352-69151b80-b8af-11ea-8cb8-088c6bf4b925.jpg)
-![p13](https://user-images.githubusercontent.com/48556545/85924354-69adb200-b8af-11ea-9078-06cc4e0ced54.jpg)
-![p14](https://user-images.githubusercontent.com/48556545/85924355-6adedf00-b8af-11ea-9f7b-f0a3d3363d2f.jpg)
-![p15](https://user-images.githubusercontent.com/48556545/85924356-6b777580-b8af-11ea-82c3-ff16652642dc.jpg)
-![p16](https://user-images.githubusercontent.com/48556545/85924357-6d413900-b8af-11ea-9b4e-8eaf923390cc.jpg)
-![p17](https://user-images.githubusercontent.com/48556545/85924359-6dd9cf80-b8af-11ea-95a8-e6d4a70885ee.jpg)
-
-![p7](https://user-images.githubusercontent.com/48556545/85924365-716d5680-b8af-11ea-80d3-5deac0b955e2.jpg)
-
-
-# Task 1
+# Task 6
 The following project showcases writing such a Groovy script to achieve complete automation that the DevOps team need.
 
 Pre-process:
