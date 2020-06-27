@@ -1,5 +1,4 @@
-![p1](https://user-images.githubusercontent.com/48556545/85924337-54388800-b8af-11ea-9959-ee64daa315f5.jpg)
-![p2](https://user-images.githubusercontent.com/48556545/85924338-56024b80-b8af-11ea-97fc-5555afce286d.jpg)
+
 ![p8](https://user-images.githubusercontent.com/48556545/85924346-63b7d100-b8af-11ea-9b5c-ce57da9b147c.jpg)
 ![p9](https://user-images.githubusercontent.com/48556545/85924349-661a2b00-b8af-11ea-88d3-b73eac0607ca.jpg)
 ![p10](https://user-images.githubusercontent.com/48556545/85924350-674b5800-b8af-11ea-95b8-55d7ab072d55.jpg)
@@ -10,10 +9,7 @@
 ![p15](https://user-images.githubusercontent.com/48556545/85924356-6b777580-b8af-11ea-82c3-ff16652642dc.jpg)
 ![p16](https://user-images.githubusercontent.com/48556545/85924357-6d413900-b8af-11ea-9b4e-8eaf923390cc.jpg)
 ![p17](https://user-images.githubusercontent.com/48556545/85924359-6dd9cf80-b8af-11ea-95a8-e6d4a70885ee.jpg)
-![p3](https://user-images.githubusercontent.com/48556545/85924360-6dd9cf80-b8af-11ea-9fe5-1d56b6dbf2cc.jpg)
-![p4](https://user-images.githubusercontent.com/48556545/85924361-6e726600-b8af-11ea-828e-6a609983a049.jpg)
-![p5](https://user-images.githubusercontent.com/48556545/85924362-6fa39300-b8af-11ea-84cf-75e338dc12a4.jpg)
-![p6](https://user-images.githubusercontent.com/48556545/85924363-70d4c000-b8af-11ea-9056-8ea84c4fdfd7.jpg)
+
 ![p7](https://user-images.githubusercontent.com/48556545/85924365-716d5680-b8af-11ea-80d3-5deac0b955e2.jpg)
 
 
@@ -293,18 +289,65 @@ This Job will take inputs from the Code_Interpreter Job to know the code languag
         }
       }
 
+![p3](https://user-images.githubusercontent.com/48556545/85924360-6dd9cf80-b8af-11ea-9fe5-1d56b6dbf2cc.jpg)
+![p4](https://user-images.githubusercontent.com/48556545/85924361-6e726600-b8af-11ea-828e-6a609983a049.jpg)
 
 
 
 
+## Job 3: Application_Monitoring
+This Job will monitor our running application, every minute. It will retrieve the running state code from the application. If the code is 200, that means the application is running properly, then the Job will end with exit code 0. but if the code is 500 pointing out to some error, the Job will end with an exit code 1, thereby triggering the next Job.
+			
+			job("Application_Monitoring") {
+
+				description("Application Monitoring Job")
+
+
+				triggers {
+					 scm("* * * * *")
+				 }
+
+
+				steps {
+
+					shell('export status=$(curl -siw "%{http_code}" -o /dev/null 192.168.99.106:30100); if [ $status -eq 200 ]; then exit 0; else python3 email.py; exit 1; fi')
+
+				}
+			}
 
 
 
+![p5](https://user-images.githubusercontent.com/48556545/85924362-6fa39300-b8af-11ea-84cf-75e338dc12a4.jpg)
+![p6](https://user-images.githubusercontent.com/48556545/85924363-70d4c000-b8af-11ea-9056-8ea84c4fdfd7.jpg)
+
+## Job 4: Redeployment
+If the Application_Monitoring Job exits with an error code 1, this job gets triggered. It will relaunch all the containers and Deployments on which the application was running. It will do this by simply triggering the Code_Interpreter Job.
+	job("Redeployment") {
 
 
+		description("Redeploying the Application")
 
 
+		triggers {
+			upstream {
+				upstreamProjects("Application_Monitoring")
+				threshold("FAILURE")
+			}
+		}
 
 
+		publishers {
+			postBuildScripts {
+				steps {
+					downstreamParameterized {
+						trigger("Code_Interpreter")
+					}
+				}
+			 }
+		}
+	}
+
+Job: Seed_Job
+Configure the seed job as follows
 
 
