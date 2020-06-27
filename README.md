@@ -265,11 +265,33 @@ This Job will interpret the language of the committed code. On interpreting the 
        pull(true)
                } 
         } 
+        }}
+        
+ ![p1](https://user-images.githubusercontent.com/48556545/85924337-54388800-b8af-11ea-9959-ee64daa315f5.jpg)
+![p2](https://user-images.githubusercontent.com/48556545/85924338-56024b80-b8af-11ea-97fc-5555afce286d.jpg)
+
+  # Job 2: Kubernetes_Deployment
+
+This Job will take inputs from the Code_Interpreter Job to know the code language and will create the volumes, deployments and the services using the configuration files we had created earlier.
+
+ 
+
+
+      shell("if sudo kubectl get deployments | grep html-dep; then sudo kubectl rollout restart deployment/html-dep; sudo kubectl rollout status deployment/html-dep; else if kubectl get pvc | grep http-pv-claim; then sudo kubectl delete pvc --all; kubectl create -f /groovy/dep/http_pv_claim.yml; else sudo kubectl create -f /groovy/dep/http_pv_claim.yml; fi; if sudo kubectl get pv | grep http-pv; then sudo kubectl delete pv --all; sudo kubectl create -f /groovy/dep/http_pv.yml; else sudo kubectl create -f /groovy/dep/http_pv.yml; fi; kubectl create -f /groovy/dep/http_dep.yml; kubectl create -f /groovy/dep/service.yml; kubectl get all; fi")       
+
+
+  }
+
+
+    else {
+
+
+      shell("if sudo kubectl get deployments | grep php-dep; then sudo kubectl rollout restart deployment/php-dep; sudo kubectl rollout status deployment/php-dep; else if kubectl get pvc | grep php-pv-claim; then sudo kubectl delete pvc --all; kubectl create -f /groovy/dep/php_pv_claim.yml; else sudo kubectl create -f /groovy/dep/php_pv_claim.yml; fi; if sudo kubectl get pv | grep php-pv; then sudo kubectl delete pv --all; sudo kubectl create -f /groovy/dep/php_pv.yml; else sudo kubectl create -f /groovy/dep/php_pv.yml; fi; kubectl create -f /groovy/dep/php_dep.yml; kubectl create -f /groovy/dep/service.yml; kubectl get all; fi")
+         
+
+          }
         }
-
-}  
-
-
+      }
 
 
 
