@@ -70,87 +70,219 @@ HTML Server:
       app: webapp
 
 
-PersistentVolumeClaim:
+                  
+ PersistentVolumeClaim:
+            
+          apiVersion: v1
 
- 
+         kind: PersistentVolumeClaim
+
+         metadata:
+           name: php-pv-claim
+
+         spec:
+           storageClassName: manual
+
+           accessModes:
+             - ReadWriteOnce
+
+           resources:
+             requests:
+               storage: 3Gi
+               
+ 3] Deployments:
+We need to create deployments on which the containers will be deployed. We Mount the /var/log/httpd/ directory in each container so as to store the log data permanently
+
+HTML:
+      apiVersion: apps/v1
+      kind: Deployment
+
+      metadata:
+        name: http-dep
+
+
+      spec:
+        replicas: 3
+
+        selector:
+          matchLabels:
+            app: webapp
+
+
+        template:
+          metadata: 
+            name: http-dep 
+            labels:
+              app: webapp
+
+
+    spec: 
+      volumes:
+        - name: http-pv
+          persistentVolumeClaim:
+            claimName: http-pv-claim
+      containers: 
+        - name: http-dep
+          image: dockerninad07/apache-server
+          volumeMounts:
+            - mountPath: "/var/log/httpd/"
+              name: http-pv
+           
+PHP:
+      
+      apiVersion: apps/v1
+      kind: Deployment
+
+      metadata:
+        name: php-dep
+
+
+      spec:
+        replicas: 3
+        selector:
+          matchLabels:
+            app: webapp
+
+
+        template:
+          metadata: 
+            name: php-dep 
+            labels:
+              app: webapp
+
+
+    spec: 
+      volumes:
+        - name: php-pv
+          persistentVolumeClaim:
+            claimName: php-pv-claim
+
+      containers: 
+        - name: php-dep
+          image: dockerninad07/apache-php-server
+          volumeMounts:
+            - mountPath: "/var/log/httpd/"
+              name: php-pv
+               
+4] Service:
+We need to create a service for our deployment to assign a customized Port address to our Deployment.
+Service:
+      
       apiVersion: v1
-      kind: PersistentVolumeClaim
-       metadata:
-          name: http-pv-claim
-       spec:
-  storageClassName: manual
+      kind: Service
+
+      metadata:
+        name: my-service
+
+      spec:
+        type: NodePort
+
+        selector: 
+          app: webapp
+
+        ports:
+          - port: 80
+            targetPort: 80
+            nodePort: 30100
+
   
-  accessModes:
-    - ReadWriteOnce
-  
-  resources:
-    requests:
-      storage: 3Gi
+This will assign Port 30100 to our deployment. You can assign any port number in the range 30000-32767 if using the NodePort type.
+As we have our configurations ready, we need to write the Groovy script to create Jobs inside Jenkins.
+
+Groovy Script:
+We need to write a groovy script for creating a chain of Jobs inside Jenkins
+Job 1: Code_interpreter
+This Job will interpret the language of the committed code. On interpreting the language of the code, it will build the corresponding Docker image from the Dockerfile provided with the code. After the build is done, it will push the built image to the corresponding DockerHub repository.
 
 
+      job("Code_Interpreter") {
 
-spec:
-  storageClassName: manual
-  
-  capacity:
-    storage: 10Gi
-  
-  accessModes:
-    - ReadWriteOnce
-  
-  hostPath:
-    path: "/mnt/sda1/data/http/"
+
+        description("Code Interpreter Job")
+
+        steps {
+
+         scm {
+           git {
+             extensions {
+               wipeWorkspace()
+             }
+           }
+         }
+
+         scm {
+           github("Ninad07/Groovy", "master")
+         }
+
+
+         triggers {
+           scm("* * * * *")
+         }
+
+
+         shell("if ls | grep php; then sudo cp -rvf * /groovy/image/php/; else sudo cp * /groovy/image/html; fi")
+
+
+         if(shell("ls /groovy/code/ | grep php | wc -l")) {
+
+
+     dockerBuilderPublisher {
+       dockerFileDirectory("/groovy/image/html")
+       fromRegistry {
+         url("dockerninad07")
+         credentialsId("4de5b343-12cc-4a68-9e1c-8c4d1ce40917")
+       }
+       cloud("Local")
     
+       tagsString("dockerninad07/apache-server")
+       pushOnSuccess(true)
+       pushCredentialsId("8fb4a5df-3dab-4214-a8ec-7f541f675dcb")
+       cleanImages(false)
+       cleanupWithJenkinsJobDelete(false)
+       noCache(false)
+       pull(true)
+     }    
+       
+     }
     
- 
- PHP Server:
-PersistentVolume:
+     else {
+     
+     dockerBuilderPublisher {
+       dockerFileDirectory("/groovy/image/php")
+       fromRegistry {
+         url("dockerninad07")
+         credentialsId("4de5b343-12cc-4a68-9e1c-8c4d1ce40917")
+       }
+       cloud("Local")
 
 
-'''javascript
-apiVersion: v1
+       tagsString("dockerninad07/apache-php-server")
+       pushOnSuccess(true)
+       pushCredentialsId("8fb4a5df-3dab-4214-a8ec-7f541f675dcb")
+       cleanImages(false)
+       cleanupWithJenkinsJobDelete(false)
+       noCache(false)
+       pull(true)
+               } 
+        } 
+        }
 
-kind: PersistentVolume
+}  
 
-metadata:
-  name: php-pv
-  
-  labels:
-    app: webapp
 
-spec:
-  storageClassName: manual
-  
-  capacity:
-    storage: 10Gi
-  
-  accessModes:
-    - ReadWriteOnce
-  
-  hostPath:
-    path: "/mnt/sda1/data/php/"
-'''
 
-PersistentVolumeClaim:
-'''javascript
-apiVersion: v1
 
-kind: PersistentVolumeClaim
 
-metadata:
-  name: php-pv-claim
 
-spec:
-  storageClassName: manual
-  
-  accessModes:
-    - ReadWriteOnce
-  
-  resources:
-    requests:
-      storage: 3Gi
-'''
 
-    
-    
+
+
+
+
+
+
+
+
+
+
 
