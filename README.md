@@ -33,31 +33,26 @@ Pre-process:
 1] Dockerfiles for HTML and PHP containers
 
 HTML:
-'''javascript
-FROM centos
 
-RUN yum install httpd -y
+     FROM centos
 
-COPY *.html /var/www/html/
-
-EXPOSE 80
+     RUN yum install httpd -y
+     COPY *.html /var/www/html/
+     EXPOSE 80
 
 CMD /usr/sbin/httpd -DFOREGROUND && tail -f /dev/null
-'''
+
 
 PHP:
-'''javascript
-FROM centos
 
-RUN yum install httpd -y
-RUN yum install php -y
-
-COPY *.php /var/www/html/
-
-EXPOSE 80
+    FROM centos
+    RUN yum install httpd -y
+     RUN yum install php -y
+    COPY *.php /var/www/html/
+     EXPOSE 80
 
 CMD /usr/sbin/httpd -DFOREGROUND && tail -f /dev/null
-'''
+
 The webpage code files will be stored in the same path of the Dockerfiles after the Jenkins job downloads them from the GitHub
 
 2] Persistent Volumes and Persistent Volume Claims:
@@ -66,29 +61,23 @@ As the containers are running with Apache Web Server, they generate log files. T
 HTML Server:
  PersistentVolume:
  
- '''javascript
-apiVersion: v1
+ 
+     apiVersion: v1
+     kind: PersistentVolume
+      metadata:
+     name: http-pv
+      labels:
+      app: webapp
 
-kind: PersistentVolume
-
-metadata:
-  name: http-pv
-  
-  labels:
-    app: webapp
-'''
 
 PersistentVolumeClaim:
 
-'''javascript
-apiVersion: v1
-
-kind: PersistentVolumeClaim
-
-metadata:
-  name: http-pv-claim
-
-spec:
+ 
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+       metadata:
+          name: http-pv-claim
+       spec:
   storageClassName: manual
   
   accessModes:
@@ -112,7 +101,7 @@ spec:
   hostPath:
     path: "/mnt/sda1/data/http/"
     
-    '''
+    
  
  PHP Server:
 PersistentVolume:
